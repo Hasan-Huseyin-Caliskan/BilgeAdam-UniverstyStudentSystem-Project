@@ -14,7 +14,11 @@ import java.util.Set;
 
 public class IOSystem {
 	Scanner sc = new Scanner(System.in);
-	HashMap<Integer, String> student = new HashMap<Integer, String>();
+	HashMap<Integer, String> student=new HashMap<Integer, String>();
+	FileOutputStream fos = null;
+	ObjectOutputStream oos = null;
+	FileInputStream fis = null;
+	ObjectInputStream ois = null;
 
 	// Dosyaya yazma işlemleri
 	public void writeFile() {
@@ -31,14 +35,12 @@ public class IOSystem {
 			counter++;
 			student.put(num, name);
 		}
-		FileOutputStream fos = null;
-		ObjectOutputStream oos = null;
 		try {
-			fos = new FileOutputStream("StudentList.txt", true);
-			oos = new ObjectOutputStream(fos);
+			fos=new FileOutputStream("StudentList.txt",true);
+			oos=new ObjectOutputStream(fos);
 			System.out.println("Yazma işlemine başlandı.");
 			oos.writeObject(student);
-
+			
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -49,8 +51,8 @@ public class IOSystem {
 			System.out.println("Yazma ile ilgili bir sorun oluştu.");
 		} finally {
 			try {
-				oos.close();
 				fos.close();
+				oos.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -61,14 +63,10 @@ public class IOSystem {
 
 	// Dosyayı okuma işlemleri
 	public void readFile() {
-		FileInputStream fis = null;
-		ObjectInputStream ois = null;
 		try {
 			fis = new FileInputStream("StudentList.txt");
 			ois = new ObjectInputStream(fis);
-			student = (HashMap) ois.readObject();
-			ois.close();
-			fis.close();
+			student = (HashMap<Integer, String>) ois.readObject();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			System.out.print("Okunacak dosya bulunamadı.");
@@ -78,33 +76,63 @@ public class IOSystem {
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			System.out.println("Class bulunamadı.");
+		}finally {
+			try {
+				ois.close();
+				fis.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		}
 		Set set = student.entrySet();
-		Iterator iterator = set.iterator();
+		Iterator iterator;
+		iterator = set.iterator();
 		while (iterator.hasNext()) {
 			Map.Entry mEntry = (Map.Entry) iterator.next();
 			System.out.print("\nOkul Numarası: " + mEntry.getKey() + " Öğrenci Adı: " + mEntry.getValue());
-			System.out.println(mEntry.getValue());
 		}
+
 	}
 
 	// Öğrenci silme işlemleri
 	public void deleteStudent() {
-		System.out.println("\n\tSilinecek öğrencinin okul numarasını giriniz");
-		FileInputStream fis = null;
-		ObjectInputStream ois = null;
 		try {
-			fis=new FileInputStream("StudentList.txt");
-			ois=new ObjectInputStream(fis);
-			int num=sc.nextInt();
-			student.containsKey(num);
-			System.out.println(student.containsKey(num));
+			fis = new FileInputStream("StudentList.txt");
+			ois = new ObjectInputStream(fis);
+			student = (HashMap) ois.readObject();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.print("Okunacak dosya bulunamadı.");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Liste boş");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Class bulunamadı.");
+		}finally {
+			System.out.println("Silinecek öğrencinin numarası:");
+			int dVal=sc.nextInt();
+			student.remove(dVal);
+			try {
+				fos=new FileOutputStream("StudentList.txt");
+				oos=new ObjectOutputStream(fos);
+				oos.writeObject(student);
+				fos.close();
+				oos.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		Set set = student.entrySet();
+		Iterator iterator;
+		iterator = set.iterator();
+		while (iterator.hasNext()) {
+			Map.Entry mEntry = (Map.Entry) iterator.next();
+			System.out.print("\nOkul Numarası: " + mEntry.getKey() + " Öğrenci Adı: " + mEntry.getValue());
 		}
 	}
 }
